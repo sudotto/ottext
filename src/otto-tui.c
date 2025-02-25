@@ -1,3 +1,10 @@
+//  ####  ###### ######  ####        ###### ## ## ######
+// ##  ##   ##     ##   ##  ##         ##   ## ##   ##
+// ##  ##   ##     ##   ##  ## ######  ##   ## ##   ##
+// ##  ##   ##     ##   ##  ##         ##   ## ##   ##
+//  ####    ##     ##    ####          ##    ###  ######
+// otto-tui by sudotto
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -13,7 +20,7 @@
 // TERMINAL INFO
 ///////////////////
 
-void get_term_size(int* w, int* h){
+void get_terminal_size(int* w, int* h){
 	struct winsize t;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &t);
 	*w = t.ws_col;
@@ -24,73 +31,73 @@ void get_term_size(int* w, int* h){
 // GLYPH STRUCTURE
 ///////////////////
 
-glyph create_glyph(char c, bool inv){
-	glyph inst;
-	switch(c){
+Glyph new_glyph(char ch, bool invert){
+	Glyph glyph;
+	switch(ch){
 		case '\n':                                         // NEWLINE
-			inst.c = ' ';
+			glyph.ch = ' ';
 			break;
 		case 9:                                            // TAB
-			inst.c = ' ';
+			glyph.ch = ' ';
 			break;
 		default:                                           // any other character
-			inst.c = c;
+			glyph.ch = ch;
 			break;
 	}
-	inst.inv = inv;
-	return inst;
+	glyph.invert = invert;
+	return glyph;
 }
 
 ///////////////////
 // CANVAS STRUCTURE
 ///////////////////
 
-canvas create_canvas(){
-	canvas inst;
+Canvas new_canvas(){
+	Canvas canvas;
 	int w, h;
-	get_term_size(&w, &h);
-	inst.w = w - 4;
-	inst.h = h - 3;
+	get_terminal_size(&w, &h);
+	canvas.w = w - 4;
+	canvas.h = h - 3;
 	for(int y = 0; y <= h; y++){
 		for(int x = 0; x <= w; x++){
-			inst.glyphs[y][x] = create_glyph(' ', false);
+			canvas.glyphs[y][x] = new_glyph(' ', false);
 		}
 	}
-	return inst;
+	return canvas;
 }
 
-void write_canvas(canvas* canv, char c, bool inv, int x, int y){
-	if(x >= 0 && x <= canv->w && y >= 0 && y <= canv->h){
-		canv->glyphs[y][x] = create_glyph(c, inv);
+void print_char_canvas(Canvas *canvas, char ch, bool invert, int x, int y){
+	if(x >= 0 && x <= canvas->w && y >= 0 && y <= canvas->h){
+		canvas->glyphs[y][x] = new_glyph(ch, invert);
 	}
 }
 
-void fill_line(canvas* canv, char c, bool inv, int line){
-	for(int x = 0; x <= canv->w; x++){
-		write_canvas(canv, c, inv, x, line);
+void fill_line_canvas(Canvas *canvas, char ch, bool invert, int line){
+	for(int x = 0; x <= canvas->w; x++){
+		print_char_canvas(canvas, ch, invert, x, line);
 	}
 }
 
-void fill_canvas(canvas* canv, char c, bool inv){
-	for(int y = 0; y <= canv->h; y++){
-		fill_line(canv, c, inv, y);
+void fill_canvas(Canvas* canvas, char ch, bool invert){
+	for(int y = 0; y <= canvas->h; y++){
+		fill_line_canvas(canvas, ch, invert, y);
 	}
 }
 
-void print_canvas(canvas* canv, char* str, bool inv, int x, int y){
-	for(int i = 0; i < strlen(str); i++){
-		write_canvas(canv, str[i], inv, x, y);
+void print_string_canvas(Canvas* canvas, char* string, bool invert, int x, int y){
+	for(int i = 0; i < strlen(string); i++){
+		print_char_canvas(canvas, string[i], invert, x, y);
 		x++;
 	}
 }
 
-void render_canvas(canvas* canv){
-	for(int y = 0; y <= canv->h; y++){
-		for(int x = 0; x <= canv->w; x++){
-			if(canv->glyphs[y][x].inv){
+void render_canvas(Canvas* canvas){
+	for(int y = 0; y <= canvas->h; y++){
+		for(int x = 0; x <= canvas->w; x++){
+			if(canvas->glyphs[y][x].invert){
 				printf("\033[7m");
 			}
-			printf("%c", canv->glyphs[y][x].c);
+			printf("%c", canvas->glyphs[y][x].ch);
 			printf("\033[0m");
 		}
 		printf("\n");
@@ -101,74 +108,75 @@ void render_canvas(canvas* canv){
 // EZ-INPUT
 ///////////////////
 
-ezi create_ezi(){
-	ezi e;
-	e.key = malloc(5*sizeof(char));
-	e.string = malloc(50*sizeof(char));
-	return e;
+Ezi new_ezi(){
+	Ezi ezi;
+	ezi.key = malloc(5*sizeof(char));
+	ezi.string = malloc(50*sizeof(char));
+	return ezi;
 }
 
-void destroy_ezi(ezi *e){
-	free(e->key);
-	free(e->string);
+void destroy_ezi(Ezi *ezi){
+	free(ezi->key);
+	free(ezi->string);
 }
 
-void ezi_keypress(ezi* e){
+void get_keypress_ezi(Ezi* ezi){
 	struct termios old_term, new_term;
 	tcgetattr(STDIN_FILENO, &old_term);
 	new_term = old_term;
 	new_term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
-	e->key = malloc(5*sizeof(char));
 	char seq[3];
+	printf("test");
 	int seq_count = read(STDIN_FILENO, seq, 3);
-	*e->key = seq[0];
-	if(*e->key > 126 || *e->key < 33){
-		switch(*e->key){
+	printf("%i", seq[0]);
+	*ezi->key = seq[0];
+	if(*ezi->key > 126 || *ezi->key < 33){
+		switch(*ezi->key){
 			case 127:
-				e->key = "backspace";
+				ezi->key = "backspace";
 				break;
 			case 9:
-				e->key = "tab";
+				ezi->key = "tab";
 				break;
 			case 10:
-				e->key = "return";
+				ezi->key = "return";
 				break;
 			case 27:
-				e->key = "escape";
+				ezi->key = "escape";
 				switch(seq[1]){
 					case '[':
 						switch(seq[2]){
 							case 'A':
-								e->key = "up";
+								ezi->key = "up";
 								break;
 							case 'B':
-								e->key = "down";
+								ezi->key = "down";
 								break;
 							case 'C':
-								e->key = "right";
+								ezi->key = "right";
 								break;
 							case 'D':
-								e->key = "left";
+								ezi->key = "left";
 								break;
 						break;
 					case '~':
-						e->key = "delete";
+						ezi->key = "delete";
 						break;
 					}
 				}
 				break;
 			default:
-				printf("%i", *e->key);
+				printf("%i", *ezi->key);
 		}
 	}
 	tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
 }
 
-void ezi_string(ezi *e){
+void get_string_ezi(Ezi *ezi){
 
 }
 
-void ezi_number(ezi *e){
+void get_number_ezi(Ezi *ezi){
 
 }
