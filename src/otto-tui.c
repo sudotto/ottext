@@ -72,6 +72,13 @@ void print_char_canvas(Canvas *canvas, char ch, bool invert, int x, int y){
 	}
 }
 
+void print_string_canvas(Canvas* canvas, char* string, bool invert, int x, int y){
+	for(int i = 0; i < strlen(string); i++){
+		print_char_canvas(canvas, string[i], invert, x, y);
+		x++;
+	}
+}
+
 void fill_line_canvas(Canvas *canvas, char ch, bool invert, int line){
 	for(int x = 0; x <= canvas->w; x++){
 		print_char_canvas(canvas, ch, invert, x, line);
@@ -81,13 +88,6 @@ void fill_line_canvas(Canvas *canvas, char ch, bool invert, int line){
 void fill_canvas(Canvas* canvas, char ch, bool invert){
 	for(int y = 0; y <= canvas->h; y++){
 		fill_line_canvas(canvas, ch, invert, y);
-	}
-}
-
-void print_string_canvas(Canvas* canvas, char* string, bool invert, int x, int y){
-	for(int i = 0; i < strlen(string); i++){
-		print_char_canvas(canvas, string[i], invert, x, y);
-		x++;
 	}
 }
 
