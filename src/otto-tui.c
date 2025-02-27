@@ -110,14 +110,12 @@ void render_canvas(Canvas* canvas){
 
 Ezi new_ezi(){
 	Ezi ezi;
-	ezi.key = malloc(5*sizeof(char));
-	ezi.string = malloc(50*sizeof(char));
+	ezi.key = malloc(100*sizeof(char));
 	return ezi;
 }
 
-void destroy_ezi(Ezi *ezi){
+void destroy_ezi(Ezi* ezi){
 	free(ezi->key);
-	free(ezi->string);
 }
 
 void get_keypress_ezi(Ezi* ezi){
@@ -127,54 +125,56 @@ void get_keypress_ezi(Ezi* ezi){
 	new_term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
 	char seq[3];
-	printf("test");
 	int seq_count = read(STDIN_FILENO, seq, 3);
 	printf("%i", seq[0]);
-	*ezi->key = seq[0];
+	if(seq[0]){
+		*ezi->key = seq[0];
+	} else {
+		*ezi->key = 0;
+	}
 	if(*ezi->key > 126 || *ezi->key < 33){
 		switch(*ezi->key){
 			case 127:
-				ezi->key = "backspace";
+				strcpy(ezi->key, "backspace");
 				break;
 			case 9:
-				ezi->key = "tab";
+				strcpy(ezi->key, "tab");
 				break;
 			case 10:
-				ezi->key = "return";
+				strcpy(ezi->key, "return");
 				break;
 			case 27:
-				ezi->key = "escape";
+				strcpy(ezi->key, "escape");
 				switch(seq[1]){
 					case '[':
 						switch(seq[2]){
 							case 'A':
-								ezi->key = "up";
+								strcpy(ezi->key, "up");
 								break;
 							case 'B':
-								ezi->key = "down";
+								strcpy(ezi->key, "down");
 								break;
 							case 'C':
-								ezi->key = "right";
+								strcpy(ezi->key, "right");
 								break;
 							case 'D':
-								ezi->key = "left";
+								strcpy(ezi->key, "left");
 								break;
 						break;
 					case '~':
-						ezi->key = "delete";
+						strcpy(ezi->key, "delete");
 						break;
 					}
 				}
 				break;
-			default:
-				printf("%i", *ezi->key);
 		}
 	}
 	tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
 }
 
 void get_string_ezi(Ezi *ezi){
-
+	ezi->string = malloc(100*sizeof(char));
+	
 }
 
 void get_number_ezi(Ezi *ezi){

@@ -56,7 +56,6 @@ typedef struct {
 } Ezi;
 
 Ezi new_ezi();
-void destroy_ezi(Ezi *ezi);
 void get_keypress_ezi(Ezi *ezi);
 void get_string_ezi(Ezi *ezi);
 void get_number_ezi(Ezi *ezi);

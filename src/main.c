@@ -39,5 +39,4 @@ int main(){
 		render_canvas(&canvas);
 		get_keypress_ezi(&ezi);
 	}
-	destroy_ezi(&ezi);
 }
