@@ -60,4 +60,10 @@ void get_keypress_ezi(Ezi *ezi);
 void get_string_ezi(Ezi *ezi);
 void get_number_ezi(Ezi *ezi);
 
+///////////////////
+// SIMPLE AUDIO
+///////////////////
+
+void play_bell();
+
 #endif

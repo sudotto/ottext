@@ -110,30 +110,35 @@ void render_canvas(Canvas* canvas){
 
 Ezi new_ezi(){
 	Ezi ezi;
-	ezi.key = malloc(100*sizeof(char));
+	ezi.key = malloc(20*sizeof(char));
+	ezi.string = malloc(100*sizeof(char));
 	return ezi;
 }
 
 void destroy_ezi(Ezi* ezi){
 	free(ezi->key);
+	free(ezi->string);
 }
 
 void get_keypress_ezi(Ezi* ezi){
+	char seq[3];
+
+	// get stdin data
+
 	struct termios old_term, new_term;
 	tcgetattr(STDIN_FILENO, &old_term);
 	new_term = old_term;
 	new_term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
-	char seq[3];
+
 	int seq_count = read(STDIN_FILENO, seq, 3);
-	printf("%i", seq[0]);
-	if(seq[0]){
-		*ezi->key = seq[0];
-	} else {
-		*ezi->key = 0;
-	}
-	if(*ezi->key > 126 || *ezi->key < 33){
-		switch(*ezi->key){
+
+	tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+
+	// parse stdin data
+
+	if(seq[0] > 126 || seq[0] < 33){
+		switch(seq[0]){
 			case 127:
 				strcpy(ezi->key, "backspace");
 				break;
@@ -168,15 +173,23 @@ void get_keypress_ezi(Ezi* ezi){
 				}
 				break;
 		}
+	} else {
+		*ezi->key = seq[0];
 	}
-	tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
 }
 
 void get_string_ezi(Ezi *ezi){
-	ezi->string = malloc(100*sizeof(char));
-	
+	scanf("%100s", ezi->string);
 }
 
 void get_number_ezi(Ezi *ezi){
+	scanf("%i", ezi->number);
+}
 
+///////////////////
+// SIMPLE AUDIO
+///////////////////
+
+void play_bell(){
+	printf("\a");
 }

@@ -10,7 +10,8 @@ int main(){
 	Canvas canvas = new_canvas();
 	Ezi ezi = new_ezi();
 	while(run){
-		//system("clear");
+		play_bell();
+		system("clear");
 		char* lines[20] = {
 			"    ####  ###### ######  ####        ###### ## ## ###### ",
 			"   ##  ##   ##     ##   ##  ##         ##   ## ##   ##   ",
@@ -19,7 +20,7 @@ int main(){
 			"    ####    ##     ##    ####          ##    ###  ###### ",
 			"",
 			"<this is a demo of otto-tui by sudotto>",
-			" - (to exit press \"q\")",
+			" - (to exit press \"esc\")",
 			" - (for documentation please read the README file)",
 			" - (if you are using this library please read the license)",
 			" - (thank you for using otto-tui)",
@@ -38,5 +39,8 @@ int main(){
 		}
 		render_canvas(&canvas);
 		get_keypress_ezi(&ezi);
+		if(!strcmp(ezi.key, "escape")){
+			run = false;
+		}
 	}
 }
