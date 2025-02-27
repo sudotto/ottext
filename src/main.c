@@ -11,7 +11,8 @@ int main(){
 	Ezi ezi = new_ezi();
 	while(run){
 		play_bell();
-		system("clear");
+		fill_canvas(&canvas, new_glyph(' ', FG_WHITE, BG_BLACK, false));
+		printf("\033[2J");
 		char* lines[20] = {
 			"    ####  ###### ######  ####        ###### ## ## ###### ",
 			"   ##  ##   ##     ##   ##  ##         ##   ## ##   ##   ",
@@ -28,13 +29,13 @@ int main(){
 		};
 		for(int i = 0; i < 20; i++){
 			if(lines[i]){
-				print_string_canvas(&canvas, lines[i], false, 0, i);
+				print_string_canvas(&canvas, new_glyph_string(lines[i], FG_WHITE, BG_BLACK, false), 0, i);
 			}
 			if(i == 12){
 				char u_pressed_msg[50] = "you pressed: ";
 				char* t = "test";
 				strcat(u_pressed_msg, ezi.key);
-				print_string_canvas(&canvas, u_pressed_msg, false, 0, 12);
+				print_string_canvas(&canvas, new_glyph_string(u_pressed_msg, FG_WHITE, BG_BLACK, false), 0, 12);
 			}
 		}
 		render_canvas(&canvas);

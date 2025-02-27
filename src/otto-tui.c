@@ -31,21 +31,24 @@ void get_terminal_size(int* w, int* h){
 // GLYPH STRUCTURE
 ///////////////////
 
-Glyph new_glyph(char ch, bool invert){
+Glyph new_glyph(char ch, char* fg, char* bg, bool invert){
 	Glyph glyph;
-	switch(ch){
-		case '\n':                                         // NEWLINE
-			glyph.ch = ' ';
-			break;
-		case 9:                                            // TAB
-			glyph.ch = ' ';
-			break;
-		default:                                           // any other character
-			glyph.ch = ch;
-			break;
-	}
+	glyph.ch = ch;
+	glyph.fg = fg;
+	glyph.bg = bg;
 	glyph.invert = invert;
 	return glyph;
+}
+
+Glyph* new_glyph_string(char* string, char* fg, char* bg, bool invert){
+	Glyph* glyphs = malloc(100*sizeof(Glyph));
+	for(int i = 0; i < strlen(string); i++){
+		glyphs[i].ch = string[i];
+		glyphs[i].fg = fg;
+		glyphs[i].bg = bg;
+		glyphs[i].invert = invert;
+	}
+	return glyphs;
 }
 
 ///////////////////
@@ -60,34 +63,37 @@ Canvas new_canvas(){
 	canvas.h = h - 3;
 	for(int y = 0; y <= h; y++){
 		for(int x = 0; x <= w; x++){
-			canvas.glyphs[y][x] = new_glyph(' ', false);
+			canvas.glyphs[y][x] = new_glyph(' ', FG_WHITE, BG_BLACK, false);
 		}
 	}
 	return canvas;
 }
 
-void print_char_canvas(Canvas *canvas, char ch, bool invert, int x, int y){
+void print_char_canvas(Canvas *canvas, Glyph glyph, int x, int y){
 	if(x >= 0 && x <= canvas->w && y >= 0 && y <= canvas->h){
-		canvas->glyphs[y][x] = new_glyph(ch, invert);
+		canvas->glyphs[y][x] = glyph;
 	}
 }
 
-void print_string_canvas(Canvas* canvas, char* string, bool invert, int x, int y){
-	for(int i = 0; i < strlen(string); i++){
-		print_char_canvas(canvas, string[i], invert, x, y);
+void print_string_canvas(Canvas* canvas, Glyph* glyphs, int x, int y){
+	for(int i = 0; i < 100; i++){
+		if(!glyphs[i].ch){
+			break;
+		}
+		print_char_canvas(canvas, glyphs[i], x, y);
 		x++;
 	}
 }
 
-void fill_line_canvas(Canvas *canvas, char ch, bool invert, int line){
+void fill_line_canvas(Canvas *canvas, Glyph glyph, int line){
 	for(int x = 0; x <= canvas->w; x++){
-		print_char_canvas(canvas, ch, invert, x, line);
+		print_char_canvas(canvas, glyph, x, line);
 	}
 }
 
-void fill_canvas(Canvas* canvas, char ch, bool invert){
+void fill_canvas(Canvas* canvas, Glyph glyph){
 	for(int y = 0; y <= canvas->h; y++){
-		fill_line_canvas(canvas, ch, invert, y);
+		fill_line_canvas(canvas, glyph, y);
 	}
 }
 
@@ -97,7 +103,15 @@ void render_canvas(Canvas* canvas){
 			if(canvas->glyphs[y][x].invert){
 				printf("\033[7m");
 			}
-			printf("%c", canvas->glyphs[y][x].ch);
+			printf("%s", canvas->glyphs[y][x].fg);
+			printf("%s", canvas->glyphs[y][x].bg);
+			switch(canvas->glyphs[y][x].ch){
+				case '\n':
+					break;
+				default:
+					printf("%c", canvas->glyphs[y][x].ch);
+					break;
+			}
 			printf("\033[0m");
 		}
 		printf("\n");
