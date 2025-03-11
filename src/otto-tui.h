@@ -52,7 +52,7 @@ typedef struct {
 
 Glyph new_glyph(char ch, char* fg, char* bg, bool invert);
 Glyph* new_glyph_string(char* str, char* fg, char* bg, bool invert);
-void render_glyph(Glyph* glyph);
+void render_glyph(Glyph* glyph, int x, int y);
 
 ///////////////////
 // CANVAS STRUCTURE

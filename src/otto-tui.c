@@ -51,6 +51,23 @@ Glyph* new_glyph_string(char* string, char* fg, char* bg, bool invert){
 	return glyphs;
 }
 
+void render_glyph(Glyph* glyph, int x, int y){
+	if(glyph->invert){
+		write(1, "\e[7m", 5);
+	}
+	write(1, glyph->fg, 6);
+	write(1, glyph->bg, 6);
+	switch(glyph->ch){
+		case '\n':
+			write(1, " ", 1);
+			break;
+		default:
+			write(1, &glyph->ch, 1);
+			break;
+	}
+	write(1, "\e[0m", 5);
+}
+
 ///////////////////
 // CANVAS STRUCTURE
 ///////////////////
@@ -100,21 +117,9 @@ void fill_canvas(Canvas* canvas, Glyph glyph){
 void render_canvas(Canvas* canvas){
 	for(int y = 0; y <= canvas->h; y++){
 		for(int x = 0; x <= canvas->w; x++){
-			if(canvas->glyphs[y][x].invert){
-				printf("\033[7m");
-			}
-			printf("%s", canvas->glyphs[y][x].fg);
-			printf("%s", canvas->glyphs[y][x].bg);
-			switch(canvas->glyphs[y][x].ch){
-				case '\n':
-					break;
-				default:
-					printf("%c", canvas->glyphs[y][x].ch);
-					break;
-			}
-			printf("\033[0m");
+			render_glyph(&canvas->glyphs[y][x], x, y);
 		}
-		printf("\n");
+		write(1, "\n", 2); // 2 maybe needs to turn into one idk
 	}
 }
 
@@ -188,7 +193,8 @@ void get_keypress_ezi(Ezi* ezi){
 				break;
 		}
 	} else {
-		*ezi->key = seq[0];
+		ezi->key[0] = seq[0];
+		ezi->key[1] = '\0';
 	}
 }
 
