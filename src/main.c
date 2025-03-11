@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "otto-tui.h"
+#include "lib/otto_canvas.h"
+#include "lib/otto_ezi.h"
+#include "lib/otto_sound.h"
 
 int main(){
 	bool run = true;
