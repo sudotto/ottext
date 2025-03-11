@@ -60,6 +60,7 @@ typedef struct {
 } Canvas;
 
 Canvas new_canvas();
+void refresh_canvas(Canvas* canvas);
 void print_char_canvas(Canvas* canvas, Glyph glyph, int x, int y);
 void print_string_canvas(Canvas* canvas, Glyph* glyph_string, int x, int y);
 void fill_canvas(Canvas* canvas, Glyph glyph);

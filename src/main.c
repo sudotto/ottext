@@ -15,7 +15,6 @@ int main(){
 		play_bell();
 		fill_canvas(&canvas, new_glyph(' ', FG_WHITE, BG_BLACK, false));
 		system("clear");
-		//printf("\e[H\e[J");
 		char* lines[20] = {
 			"    ####  ###### ######  ####        ###### ## ## ###### ",
 			"   ##  ##   ##     ##   ##  ##         ##   ## ##   ##   ",

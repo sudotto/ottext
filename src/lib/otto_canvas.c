@@ -69,16 +69,15 @@ void render_glyph(Glyph* glyph, int x, int y){
 
 Canvas new_canvas(){
 	Canvas canvas;
-	int w, h;
-	get_terminal_size(&w, &h);
-	canvas.w = w - 4;
-	canvas.h = h - 3;
-	for(int y = 0; y <= h; y++){
-		for(int x = 0; x <= w; x++){
-			canvas.glyphs[y][x] = new_glyph(' ', FG_WHITE, BG_BLACK, false);
-		}
-	}
+	refresh_canvas(&canvas);
+	fill_canvas(&canvas, new_glyph(' ', FG_WHITE, BG_BLACK, false));
 	return canvas;
+}
+
+void refresh_canvas(Canvas* canvas){
+	get_terminal_size(&canvas->w, &canvas->h);
+	canvas->w -= 4;
+	canvas->h -= 3;
 }
 
 void print_char_canvas(Canvas *canvas, Glyph glyph, int x, int y){
@@ -110,10 +109,11 @@ void fill_canvas(Canvas* canvas, Glyph glyph){
 }
 
 void render_canvas(Canvas* canvas){
+	refresh_canvas(canvas);
 	for(int y = 0; y <= canvas->h; y++){
 		for(int x = 0; x <= canvas->w; x++){
 			render_glyph(&canvas->glyphs[y][x], x, y);
 		}
-		write(1, "\n", 2); // 2 maybe needs to turn into one idk
+		write(1, "\n", 2);
 	}
 }
